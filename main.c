@@ -1,6 +1,5 @@
 #include<stdio.h>
 
-
 int driver(int, int);
 int user_move(int, char);
 int table_print();
@@ -14,10 +13,6 @@ char table[3][3] = {
         {'4','5','6'},
         {'7','8','9'}};
 
-// main function used for taking
-// a few inputs such as desired user shape
-// and start condition
-
 int main(){
     int user_shape = 1, ai_shape=0; // 1 for X, 0 for O.
     int shape_choice;
@@ -30,8 +25,8 @@ int main(){
         ai_shape=1;
     }
     else if(shape_choice>2 || shape_choice<1){
-        printf("Invalid choice, please try again.");
-        return 0;
+        printf("Invalid choice, please try again.\n");
+        main();
     }
     int start_condition;
     printf("Would you like to have the first turn in the game? : \n");
@@ -40,17 +35,33 @@ int main(){
     scanf("%d",&start_condition);
     if (start_condition == 2)
         start_condition = 0;
+    else if(start_condition>2 || start_condition<1){
+        printf("Invalid choice, please try again.\n");
+        main();
+    }
     printf("The game table would look like this \n");
     printf("You will be required to enter the number of the block you would like to place your shape in: \n");
     table_print(table);
     driver(user_shape,start_condition);
-    return 0;
+    int play_again;
+    printf("Would you like to play again? \n");
+    printf("Enter 1 for Yes \n");
+    printf("Enter 2 for No \n");
+    scanf("%d",&play_again);
+    if (play_again==1){
+        int reset = 1;
+        for(int row=0;row<3;row++){
+            for(int col=0;col<3;col++){
+                table[row][col]=reset + '0';
+                reset++;
+            }
+        }
+        main();
+    }
+    else
+        return 0;
 }
 
-// The driver code:
-// Takes care of giving an alternate turn
-// to the user and the AI
-// Also checks if there is win or a tie on the table
 
 int driver(int user_s,int turn_condition){
     char user_shape,ai_shape;
@@ -65,12 +76,15 @@ int driver(int user_s,int turn_condition){
     }
     while(1){
         if (turn_condition == 1){
+            int check;
             printf("It is your turn \n");
             printf("Which block would you like to place your shape in? \n");
             scanf("%d",&user_choice);
-            user_move(user_choice,user_shape);
-            table_print();
-            turn_condition--;
+            check = user_move(user_choice,user_shape);
+            if (check==0){
+                turn_condition--;
+                table_print();
+            }
         }
         else if (turn_condition == 0){
             best_move(user_shape,ai_shape);
@@ -96,8 +110,6 @@ int driver(int user_s,int turn_condition){
     }
 }
 
-// This function is used to print
-// the game table whenever required
 
 int table_print(){
     printf("-------------\n");
@@ -115,8 +127,6 @@ int table_print(){
     return 0;
 }
 
-// This function is used to make the
-// the desired move for the user
 
 int user_move(int user_choice, char user_shape){
     char choice = user_choice + '0';
@@ -128,12 +138,10 @@ int user_move(int user_choice, char user_shape){
             }
         }
     }
+    printf("Entered value is invalid. Please choose a valid choice \n");
     return 1;
 }
 
-// This function is responsible of
-// Checking whether there is a win condition
-// Satisfied on the board or no
 
 int table_evaluation(char shape){
     for(int row=0; row<3; row++){
@@ -171,7 +179,6 @@ int table_evaluation(char shape){
     return 0;
 }
 
-//This function is the MiniMax algorithm
 
 int minimax(char user_shape, char ai_shape, int turn_condition, int depth){
     int score = table_evaluation(ai_shape);
@@ -211,10 +218,6 @@ int minimax(char user_shape, char ai_shape, int turn_condition, int depth){
     }
 }
 
-// This function is used to predict the
-// Best move possible for the AI to make
-// Given the current state of the board
-// Using MiniMax algorithm.
 
 int best_move(char user_shape, char ai_shape){
     int r,c;
@@ -237,11 +240,6 @@ int best_move(char user_shape, char ai_shape){
     table[r][c]=ai_shape;
 }
 
-
-// This function would check whether the
-// Table still has moves left or no
-// Returns 1 if there are moves left
-// Returns 0 if there are no moves left
 
 int turns_left(){
     for(int row=0; row<3; row++){
